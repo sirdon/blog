@@ -7,6 +7,7 @@ import { getCookie, isAuth } from "../../actions/auth";
 import { getCategories } from "../../actions/category";
 import { getTags } from "../../actions/tag";
 import { createBlog } from "../../actions/blog";
+import { QuillFormats, QuillModules } from "../../helpers/quill";
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "../../node_modules/react-quill/dist/quill.snow.css";
 const CreateBlog = ({ router }) => {
@@ -64,22 +65,22 @@ const CreateBlog = ({ router }) => {
     // console.log("ready to publish blog");
     createBlog(formData, token).then((data) => {
       if (data.error) {
-        setValues({ ...values, error: data.error });
+        setValues({ ...values, error: data.error, success: "" });
       } else {
+        setBody("");
+        setCheckedCategories([]);
+        setCheckedTags([]);
         setValues({
           ...values,
           title: "",
           error: "",
           success: `A new blog titled ${data.title} is created`,
+          formData: new FormData()
         });
-        setBody("");
-        setCheckedCategories([]);
-        setCheckedTags([]);
       }
     });
   };
   const handleChange = (name) => (e) => {
-    // console.log(e.target.value);
     const value = name === "photo" ? e.target.files[0] : e.target.value;
     formData.set(name, value);
     setValues({ ...values, [name]: value, formData, error: "" });
@@ -113,7 +114,7 @@ const CreateBlog = ({ router }) => {
     } else {
       tag.splice(clickedTags, 1);
     }
-    setCheckedCategories(tag);
+    setCheckedTags(tag);
     formData.set("tags", tag);
   };
   const showCategories = () => {
@@ -124,8 +125,9 @@ const CreateBlog = ({ router }) => {
           <li key={i} className="list-unstyled">
             <input
               onChange={handleToggle(c._id)}
+              value={c._id}
               type="checkbox"
-              className="mr-2"
+              className="mr-2" checked={checkedCategories.includes(c._id)}
             />
             <label htmlFor="" className="form-ckeck-label">
               {c.name}
@@ -143,8 +145,8 @@ const CreateBlog = ({ router }) => {
           <li key={i} className="list-unstyled">
             <input
               onChange={handleToggleTags(t._id)}
-              type="checkbox"
-              className="mr-2"
+              type="checkbox" value={t._id}
+              className="mr-2" checked={checkedTags.includes(t._id)}
             />
             <label htmlFor="" className="form-ckeck-label">
               {t.name}
@@ -156,47 +158,55 @@ const CreateBlog = ({ router }) => {
   };
   const createBlogForm = () => {
     return (
-      <form onSubmit={publishBlog}>
-        <div className="form-group">
-          <label htmlFor="" className="text-muted">
-            Title
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            onChange={handleChange("title")}
-            value={title}
-          />
-        </div>
-        <div className="form-group">
-          <ReactQuill
-            modules={CreateBlog.modules}
-            formats={CreateBlog.formats}
-            value={body}
-            placeholder="Wrie something..."
-            onChange={handleBody}
-          />
-        </div>
-        <div className="">
-          <button className="btn btn-primary">Publish</button>
-        </div>
-      </form>
+      <>
+        <form onSubmit={publishBlog}>
+          <div className="form-group">
+            <label htmlFor="" className="text-muted">
+              Title
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              onChange={handleChange("title")}
+              value={title}
+            />
+          </div>
+          <div className="form-group">
+            <ReactQuill
+              modules={QuillModules}
+              formats={QuillFormats}
+              value={body}
+              placeholder="Write something..."
+              onChange={handleBody}
+            />
+          </div>
+          {showSuccess()}
+          {showError()}
+          <div className="">
+            <button className="btn btn-primary">Publish</button>
+          </div>
+        </form>
+      </>
     );
   };
-  const showSuccess = () => {
-    if (success) {
-      return <p className="text-success">Blog is created</p>;
-    }
-  };
-  const showError = () => {
-    if (error) {
-      return <p className="text-danger">{error}</p>;
-    }
-  };
+  const showSuccess = () => (
+    <div
+      className="alert alert-success"
+      style={{ display: success ? "" : "none" }}
+    >
+      {success}
+    </div>
+  );
+  const showError = () => (
+    <div
+      className="alert alert-danger"
+      style={{ display: error ? "" : "none" }}
+    >
+      {error}
+    </div>
+  );
   return (
     <>
-      {showSuccess()}
-      {showError()}
       <div className="container-fluid">
         <div className="row">
           <div className="col-md-8">{createBlogForm()}</div>
@@ -237,32 +247,5 @@ const CreateBlog = ({ router }) => {
     </>
   );
 };
-CreateBlog.modules = {
-  toolbar: [
-    [{ header: "1" }, { header: "2" }, { header: [3, 4, 5, 6] }, { font: [] }],
-    [{ size: [] }],
-    ["bold", "italic", "underline", "strike", "blockquote"],
-    [{ list: "ordered" }, { list: "bullet" }],
-    ["list", "image", "video"],
-    ["clean"],
-    ["code-block"],
-  ],
-};
 
-CreateBlog.formats = [
-  "header",
-  "font",
-  "size",
-  "bold",
-  "italic",
-  "underline",
-  "strike",
-  "blockquote",
-  "list",
-  "bullet",
-  "link",
-  "image",
-  "video",
-  "code-block",
-];
 export default withRouter(CreateBlog);
