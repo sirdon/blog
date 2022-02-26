@@ -179,6 +179,7 @@ const CreateBlog = ({ router }) => {
               placeholder="Write something..."
               onChange={handleBody}
             />
+
           </div>
           {showSuccess()}
           {showError()}
