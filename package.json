@@ -9,7 +9,7 @@
     "start": "next start -p $PORT",
     "lint": "next lint",
     "heroku-postbuild": "npm run build",
-    "start:prod": "npm run start"
+    "start:prod": "npm run start -p 80"
   },
   "keywords": [],
   "author": "",
