@@ -1,3 +1,7 @@
 #nprogess {
     height: 100px !important;
 }
+
+.ql-editor {
+    min-height: 300px;
+}

@@ -34,6 +34,13 @@ const Header = () => {
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar style={{ justifyContent: "right" }}>
           <Nav className="me-auto" navbar>
+            <NavItem style={{ paddingRight: "20px" }}>
+              <Link href="/blogs">
+                <Button color="primary" outline>
+                  Blogs
+                </Button>
+              </Link>
+            </NavItem>
             {isAuth() ? (
               <>
                 <NavItem style={{ paddingRight: "20px" }}>
@@ -50,7 +57,7 @@ const Header = () => {
                     {`${isAuth().name}'s Dasdboard`}
                   </Button>
                 </NavItem>
-                <NavItem>
+                <NavItem >
                   <Button
                     color="primary"
                     outline
@@ -79,6 +86,7 @@ const Header = () => {
                 </NavItem>
               </>
             )}
+
           </Nav>
         </Collapse>
       </Navbar>
